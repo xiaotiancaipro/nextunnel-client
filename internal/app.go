@@ -16,11 +16,24 @@ type App struct {
 }
 
 func NewApp(config *configs.Configs, logger *zap.Logger) *App {
+	tls := services.Tls{
+		Config: config.Tls,
+		Logger: logger,
+	}
+	server := services.Server{
+		Config: config.Server,
+		Logger: logger,
+	}
+	client := services.Client{
+		Config:  config.Client,
+		Proxies: config.Proxies,
+		Logger:  logger,
+	}
 	return &App{
 		logger:        logger,
-		tlsService:    services.NewTls(config, logger),
-		serverService: services.NewServer(config, logger),
-		clientService: services.NewClient(config, logger),
+		tlsService:    &tls,
+		serverService: &server,
+		clientService: &client,
 	}
 }
 
@@ -36,14 +49,15 @@ func (a *App) Start() error {
 		a.logger.Error(fmt.Sprintf("Failed to connect to server: %s", err))
 		return fmt.Errorf("failed to connect to server")
 	}
+	a.clientService.Conn = conn
 
-	if err = a.clientService.Login(conn); err != nil {
+	if err = a.clientService.Login(); err != nil {
 		_ = conn.Close()
 		a.logger.Error(fmt.Sprintf("Failed to login: %s", err))
 		return fmt.Errorf("failed to login")
 	}
 
-	runIdP, err := a.clientService.LoginResponse(conn)
+	runIdP, err := a.clientService.LoginResponse()
 	if err != nil {
 		_ = conn.Close()
 		a.logger.Error(fmt.Sprintf("Failed to login: %s", err))
@@ -53,5 +67,7 @@ func (a *App) Start() error {
 	a.logger.Info(fmt.Sprintf("Running with id: %s", runId))
 
 	// TODO
+
+	return nil
 
 }

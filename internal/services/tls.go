@@ -11,19 +11,12 @@ import (
 )
 
 type Tls struct {
-	config *configs.Tls
-	logger *zap.Logger
-}
-
-func NewTls(config *configs.Configs, logger *zap.Logger) *Tls {
-	return &Tls{
-		config: config.Tls,
-		logger: logger,
-	}
+	Config *configs.Tls
+	Logger *zap.Logger
 }
 
 func (t *Tls) Init() (*tls.Config, error) {
-	caCert, err := os.ReadFile(t.config.CaFile)
+	caCert, err := os.ReadFile(t.Config.CaFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read tls ca_file: %w", err)
 	}
@@ -37,7 +30,7 @@ func (t *Tls) Init() (*tls.Config, error) {
 	config := &tls.Config{
 		MinVersion:         tls.VersionTLS12,
 		InsecureSkipVerify: false,
-		ServerName:         t.config.ServerName,
+		ServerName:         t.Config.ServerName,
 		RootCAs:            pool,
 	}
 	if err := t.LoadCertificate(config); err != nil {
@@ -47,10 +40,10 @@ func (t *Tls) Init() (*tls.Config, error) {
 }
 
 func (t *Tls) LoadCertificate(config *tls.Config) error {
-	if t.config.CertFile == "" || t.config.KeyFile == "" {
+	if t.Config.CertFile == "" || t.Config.KeyFile == "" {
 		return fmt.Errorf("tls cert_file and key_file are required")
 	}
-	cert, err := tls.LoadX509KeyPair(t.config.CertFile, t.config.KeyFile)
+	cert, err := tls.LoadX509KeyPair(t.Config.CertFile, t.Config.KeyFile)
 	if err != nil {
 		return fmt.Errorf("failed to load client tls certificate: %w", err)
 	}

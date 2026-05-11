@@ -7,10 +7,11 @@ import (
 )
 
 type Configs struct {
-	Server *Server `toml:"server"`
-	Client *Client `toml:"client"`
-	Logs   *Logs   `toml:"logs"`
-	Tls    *Tls    `toml:"tls"`
+	Server  *Server `toml:"server"`
+	Client  *Client `toml:"client"`
+	Logs    *Logs   `toml:"logs"`
+	Tls     *Tls    `toml:"tls"`
+	Proxies []Proxy `toml:"proxies"`
 }
 
 func NewConfigs(file string) (*Configs, error) {

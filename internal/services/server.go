@@ -11,15 +11,8 @@ import (
 )
 
 type Server struct {
-	config *configs.Server
-	logger *zap.Logger
-}
-
-func NewServer(config *configs.Configs, logger *zap.Logger) *Server {
-	return &Server{
-		config: config.Server,
-		logger: logger,
-	}
+	Config *configs.Server
+	Logger *zap.Logger
 }
 
 func (s *Server) DialServer(c *tls.Config) (net.Conn, error) {
@@ -29,5 +22,5 @@ func (s *Server) DialServer(c *tls.Config) (net.Conn, error) {
 }
 
 func (s *Server) AddrStr() string {
-	return net.JoinHostPort(s.config.Addr, strconv.Itoa(s.config.Port))
+	return net.JoinHostPort(s.Config.Addr, strconv.Itoa(s.Config.Port))
 }

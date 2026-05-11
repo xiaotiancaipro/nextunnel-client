@@ -9,14 +9,16 @@ import (
 	"net"
 )
 
-const MaxMsgSize = 1 << 20
+const MsgMaxSize = 1 << 20
 
 const (
-	MsgLogin byte = 0x01
+	MsgLogin        byte = 0x01
+	MsgProxiesApply byte = 0x02
 )
 
 const (
-	MsgLoginResp byte = 0x11
+	MsgLoginResp        byte = 0x11
+	MsgProxiesApplyResp byte = 0x12
 )
 
 type LoginMsg struct {
@@ -26,6 +28,20 @@ type LoginMsg struct {
 
 type LoginRespMsg struct {
 	RunID string `json:"run_id,omitempty"`
+	Error string `json:"error,omitempty"`
+}
+
+type ProxiesApplyMsg struct {
+	Proxies []ProxiesApplyMsgItem `json:"proxies"`
+}
+
+type ProxiesApplyMsgItem struct {
+	Name       string `json:"name"`
+	Type       string `json:"type"`
+	RemotePort int    `json:"remote_port"`
+}
+
+type ProxiesApplyRespMsg struct {
 	Error string `json:"error,omitempty"`
 }
 
@@ -58,7 +74,7 @@ func ReadMsg(conn net.Conn) (byte, []byte, error) {
 	msgType := header[0]
 	length := binary.BigEndian.Uint32(header[1:5])
 
-	if length > MaxMsgSize {
+	if length > MsgMaxSize {
 		return 0, nil, fmt.Errorf("message too large: %d bytes", length)
 	}
 
