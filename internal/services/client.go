@@ -57,7 +57,7 @@ func (c *Client) LoginResponse() (*string, error) {
 
 }
 
-func (c *Client) ProxiesApply(conn net.Conn) error {
+func (c *Client) ProxiesApply() error {
 
 	proxies := make([]utils.ProxiesApplyMsgItem, 0, len(c.Proxies))
 	for _, proxy := range c.Proxies {
@@ -71,7 +71,7 @@ func (c *Client) ProxiesApply(conn net.Conn) error {
 	payload := utils.ProxiesApplyMsg{
 		Proxies: proxies,
 	}
-	if err := utils.WriteMsg(conn, utils.MsgProxiesApply, payload); err != nil {
+	if err := utils.WriteMsg(c.Conn, utils.MsgProxiesApply, payload); err != nil {
 		c.Logger.Error(fmt.Sprintf("failed to write proxies msg: %v", err))
 		return fmt.Errorf("failed to send ApplyConfigMsg")
 	}
@@ -80,11 +80,11 @@ func (c *Client) ProxiesApply(conn net.Conn) error {
 
 }
 
-func (c *Client) ProxiesApplyResponse(conn net.Conn) error {
+func (c *Client) ProxiesApplyResponse() error {
 
-	_ = conn.SetDeadline(time.Now().Add(10 * time.Second))
-	msgType, payload, err := utils.ReadMsg(conn)
-	_ = conn.SetDeadline(time.Time{})
+	_ = c.Conn.SetDeadline(time.Now().Add(10 * time.Second))
+	msgType, payload, err := utils.ReadMsg(c.Conn)
+	_ = c.Conn.SetDeadline(time.Time{})
 	if err != nil {
 		c.Logger.Error(fmt.Sprintf("Failed to read proxies msg: %v", err))
 		return fmt.Errorf("failed to read ApplyConfigResp")
