@@ -30,7 +30,6 @@ func (t *Tls) Init() (*tls.Config, error) {
 	config := &tls.Config{
 		MinVersion:         tls.VersionTLS12,
 		InsecureSkipVerify: false,
-		ServerName:         t.Config.ServerName,
 		RootCAs:            pool,
 	}
 	if err := t.LoadCertificate(config); err != nil {
