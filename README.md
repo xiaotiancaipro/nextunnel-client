@@ -50,7 +50,7 @@ flowchart LR
 mkdir -p certs
 cp /path/to/client-certs/{ca.crt,client.crt,client.key} certs/
 cp nextunnel-client.example.toml nextunnel-client.toml
-# Edit nextunnel-client.toml: server address, client id, proxies, cert paths
+# Edit nextunnel-client.toml: server address, client id, proxies, cert paths, timezone
 
 # 3. Build and run (reads nextunnel-client.toml by default)
 go build -o nextunnel-client .
@@ -79,7 +79,7 @@ services on the host).
 cd docker
 
 # Place certs under volumes/certs/ (ca.crt, client.crt, client.key)
-# Edit volumes/config/nextunnel-client.toml (server addr, client id, proxies)
+# Edit volumes/config/nextunnel-client.toml (server addr, client id, proxies, timezone)
 
 docker compose up -d
 ```
@@ -112,20 +112,21 @@ Runs in the foreground with no subcommands. Press `Ctrl+C` or send `SIGTERM` for
 
 See [`nextunnel-client.example.toml`](nextunnel-client.example.toml) for a full example.
 
-| Section       | Field                                | Description                                                         |
-|---------------|--------------------------------------|---------------------------------------------------------------------|
-| `[server]`    | `addr` / `port`                      | nextunnel-server control endpoint                                   |
-| `[client]`    | `id`                                 | Client identifier (required; must be unique per connected client)   |
-| `[logs]`      | `file`                               | Log path (daily rotation with size-based segments)                  |
-|               | `level`                              | `debug`, `info`, `warn`, or `error`                                 |
-|               | `maxSize`                            | Max segment size, e.g. `100MB`, `1GB`; bare number = MB             |
-|               | `maxBackups`                         | Max number of daily log files to retain                             |
-|               | `maxAge`                             | Max log retention in days                                           |
-| `[tls]`       | `ca_file` / `cert_file` / `key_file` | CA and client certificate paths for mTLS                            |
-| `[[proxies]]` | `name`                               | Proxy name (referenced by the server when opening work connections) |
-|               | `type`                               | Proxy type; currently `tcp`                                         |
-|               | `local_ip` / `local_port`            | Local service to forward traffic to                                 |
-|               | `remote_port`                        | Port the server listens on for this proxy                           |
+| Section       | Field                                | Description                                                                       |
+|---------------|--------------------------------------|-----------------------------------------------------------------------------------|
+| `[server]`    | `addr` / `port`                      | nextunnel-server control endpoint                                                 |
+| `[client]`    | `id`                                 | Client identifier (required; must be unique per connected client)                 |
+| `[logs]`      | `file`                               | Log path (daily rotation with size-based segments)                                |
+|               | `level`                              | `debug`, `info`, `warn`, or `error`                                               |
+|               | `maxSize`                            | Max segment size, e.g. `100MB`, `1GB`; bare number = MB                           |
+|               | `maxBackups`                         | Max number of daily log files to retain                                           |
+|               | `maxAge`                             | Max log retention in days                                                         |
+| `[tls]`       | `ca_file` / `cert_file` / `key_file` | CA and client certificate paths for mTLS                                          |
+| `[timezone]`  | `location`                           | IANA timezone for log display and daily log rotation; defaults to `Asia/Shanghai` |
+| `[[proxies]]` | `name`                               | Proxy name (referenced by the server when opening work connections)               |
+|               | `type`                               | Proxy type; currently `tcp`                                                       |
+|               | `local_ip` / `local_port`            | Local service to forward traffic to                                               |
+|               | `remote_port`                        | Port the server listens on for this proxy                                         |
 
 ### Example: SSH via remote port
 

@@ -48,7 +48,7 @@ flowchart LR
 mkdir -p certs
 cp /path/to/client-certs/{ca.crt,client.crt,client.key} certs/
 cp nextunnel-client.example.toml nextunnel-client.toml
-# 编辑 nextunnel-client.toml：服务端地址、客户端 ID、代理列表、证书路径
+# 编辑 nextunnel-client.toml：服务端地址、客户端 ID、代理列表、证书路径、时区
 
 # 3. 编译并启动（默认读取 nextunnel-client.toml）
 go build -o nextunnel-client .
@@ -76,7 +76,7 @@ go build -o nextunnel-client .
 cd docker
 
 # 将证书放入 volumes/certs/（ca.crt、client.crt、client.key）
-# 编辑 volumes/config/nextunnel-client.toml（服务端地址、客户端 ID、代理列表）
+# 编辑 volumes/config/nextunnel-client.toml（服务端地址、客户端 ID、代理列表、时区）
 
 docker compose up -d
 ```
@@ -109,20 +109,21 @@ nextunnel-client [--config <path>]    # 启动客户端（前台）
 
 完整示例见 [`nextunnel-client.example.toml`](nextunnel-client.example.toml)。
 
-| 配置段           | 字段                                   | 说明                                  |
-|---------------|--------------------------------------|-------------------------------------|
-| `[server]`    | `addr` / `port`                      | nextunnel-server 控制通道地址             |
-| `[client]`    | `id`                                 | 客户端标识（必填；同一时刻每个连接应唯一）               |
-| `[logs]`      | `file`                               | 日志路径（按天轮转，超出大小自动分段）                 |
-|               | `level`                              | `debug` / `info` / `warn` / `error` |
-|               | `maxSize`                            | 单段最大大小，如 `100MB`、`1GB`；纯数字默认为 MB    |
-|               | `maxBackups`                         | 保留的按天日志文件数量上限                       |
-|               | `maxAge`                             | 日志最大保留天数                            |
-| `[tls]`       | `ca_file` / `cert_file` / `key_file` | mTLS 所需的 CA 与客户端证书路径                |
-| `[[proxies]]` | `name`                               | 代理名称（服务端建立工作连接时引用）                  |
-|               | `type`                               | 代理类型；当前支持 `tcp`                     |
-|               | `local_ip` / `local_port`            | 本地转发目标地址与端口                         |
-|               | `remote_port`                        | 服务端为该代理监听的远程端口                      |
+| 配置段           | 字段                                   | 说明                                    |
+|---------------|--------------------------------------|---------------------------------------|
+| `[server]`    | `addr` / `port`                      | nextunnel-server 控制通道地址               |
+| `[client]`    | `id`                                 | 客户端标识（必填；同一时刻每个连接应唯一）                 |
+| `[logs]`      | `file`                               | 日志路径（按天轮转，超出大小自动分段）                   |
+|               | `level`                              | `debug` / `info` / `warn` / `error`   |
+|               | `maxSize`                            | 单段最大大小，如 `100MB`、`1GB`；纯数字默认为 MB      |
+|               | `maxBackups`                         | 保留的按天日志文件数量上限                         |
+|               | `maxAge`                             | 日志最大保留天数                              |
+| `[tls]`       | `ca_file` / `cert_file` / `key_file` | mTLS 所需的 CA 与客户端证书路径                  |
+| `[timezone]`  | `location`                           | 日志展示与按天轮转的 IANA 时区，默认 `Asia/Shanghai` |
+| `[[proxies]]` | `name`                               | 代理名称（服务端建立工作连接时引用）                    |
+|               | `type`                               | 代理类型；当前支持 `tcp`                       |
+|               | `local_ip` / `local_port`            | 本地转发目标地址与端口                           |
+|               | `remote_port`                        | 服务端为该代理监听的远程端口                        |
 
 ### 示例：通过远程端口暴露 SSH
 
