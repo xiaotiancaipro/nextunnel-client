@@ -67,6 +67,8 @@ func (c *Client) ProxiesApply() error {
 			Name:       proxy.Name,
 			Type:       proxy.Type,
 			RemotePort: proxy.RemotePort,
+			LocalIP:    proxy.LocalIP,
+			LocalPort:  proxy.LocalPort,
 		})
 	}
 
